@@ -46,6 +46,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <chrono>
 
 #include "cgidata.h"
 #include "utils.h"
@@ -865,6 +866,7 @@ int main(int argc, char **argv){
   for(u64 loop = 0; ; loop++){
 
 	int charsWritten, length=0;
+	auto tick = std::chrono::system_clock::now();
 
     /*
      * Some test stuff for new XPLD UARTs
@@ -979,7 +981,13 @@ int main(int argc, char **argv){
       cout<<"\nSent a packet at "<<relTime.tv_sec<<"."<<setw(6)<<setfill('0')
           <<relTime.tv_usec<<" s.";
     }
-	Sleep(40);
+
+
+	// calculate sleep time
+	auto tock = std::chrono::system_clock::now();
+	auto duration = tock - tick;
+	
+	Sleep(max(0, 1000.0/opt.fps - std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()));
   } // next loop
 
   if (opt.generator_type & DGOptions::GENERATOR_NETWORK)
